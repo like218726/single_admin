@@ -1,0 +1,549 @@
+{include file="Public/base" /}
+<style type="text/css">
+    .layui-input-block ul{margin-top: 5px;}
+	.layui-input-block ul li {list-style:none; display:inline-block; position:relative; border: 1px solid #DFDFDF; margin: 0 2px;}
+	.my-icons { color: red; position: absolute; right: 5px; top: 0px; z-index: 2147483647; cursor: pointer; }
+	.myiframe { border:0; height: 650px; width: 100%;}
+</style>
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>线路管理 - {$detail['product_id']?'编辑':'新增'}线路</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" action="">
+				<div class="layui-form-item">
+					<label class="layui-form-label"><span style="color:red">*</span>线路banner:</label>
+					<div class="layui-input-block">
+                        <input type="file" name="file" id="uploadFile2" class="layui-upload-file">
+                        <ul id="upload_list">
+                        	{if condition="isset($detail.picture)"}
+	                        	{foreach name="detail['picture']" item="vo"}
+								<li>
+									<img src="{$vo}" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[{$key}]" value="{$vo}" />
+								</li>
+								{/foreach}
+							{else /}
+								<!-- 
+								<li>
+									<img src="/static/admin/images/29a2ed45cc205555d997338aa40c8662.jpg" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[0]" value="" />
+								</li>	
+								<li>
+									<img src="/static/admin/images/29a2ed45cc205555d997338aa40c8662.jpg" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[1]" value="" />
+								</li>
+								<li>
+									<img src="/static/admin/images/29a2ed45cc205555d997338aa40c8662.jpg" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[2]" value="" />
+								</li>
+								<li>
+									<img src="/static/admin/images/29a2ed45cc205555d997338aa40c8662.jpg" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[3]" value="" />
+								</li>
+								<li>
+									<img src="/static/admin/images/29a2ed45cc205555d997338aa40c8662.jpg" style = "width:200px;">
+									<span class="my-icons">删除</span>
+									<input type="hidden" name="banner[4]" value="" />
+								</li>
+								-->
+							{/if}					
+						</ul>   		
+					</div>
+				</div>	
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span> 线路封面:</label>
+                    <div class="layui-input-block">
+                        <input type="file" name="file" id="uploadFile" class="layui-upload-file">
+                        <input type="hidden" name="cover" value="" id="cover" style="border: none; width: 0">                      
+						<img style = "width:200px;" id="image">						
+                    </div>
+                </div>						
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>线路名称:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+                        <input type="text" name="product_name" required value="{$detail['product_name']?$detail['product_name']:''}" maxlength="225" lay-verify="required" placeholder="请输入线路名称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>出行天数:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+                        <input type="text" name="trip_day" required value="{$detail['trip_day']?$detail['trip_day']:''}" maxlength="4" lay-verify="required|number" placeholder="请输入出行天数" class="layui-input">
+                    </div>
+                </div>		
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>出行夜数:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+                        <input type="text" name="trip_night" required value="{$detail['trip_night']?$detail['trip_night']:''}" maxlength="4" lay-verify="required|number" placeholder="请输入出行夜数" class="layui-input">
+                    </div>
+                </div>		
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>出行方式:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+                        <input type="text" name="trip_way" required value="{$detail['trip_way']?$detail['trip_way']:''}" maxlength="200" lay-verify="required" placeholder="请输入出行方式" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>出发城市:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+						<select name="start_city">
+							<option value="">请选择</option>
+							{foreach name="city" item="vo"}
+								<option value="{$key}" {if condition="isset($detail.start_city)"}{if $key eq $detail.start_city}selected{/if}{/if}>{$vo}</option>
+							{/foreach}
+						</select>
+                    </div>
+                </div>	
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>终点城市:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+						<select name="end_city">
+							<option value="">请选择</option>
+							{foreach name="city" item="vo"}
+								<option value="{$key}" {if condition="isset($detail.end_city)"}{if $key eq $detail.end_city}selected{/if}{/if}>{$vo}</option>
+							{/foreach}
+						</select>                        
+                    </div>
+                </div>	
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="margin-right: 15px;"><span style="color:red">*</span>价格设置:</label>
+					<div class="layui-input-block" style="line-height: 36px;">
+						<label class="layui-form-label">成人价格</label>
+	                    <div class="layui-input-inline" style="line-height: 36px;">
+	                        <input type="text" name="price_adult" required value="{$detail['price_adult']?$detail['price_adult']:''}" maxlength="20" lay-verify="required" placeholder="请输入成人价格" class="layui-input">
+	                    </div>
+						<label class="layui-form-label">儿童价格</label>
+	                    <div class="layui-input-inline" style="line-height: 36px;">
+	                        <input type="text" name="price_child" value="{$detail['price_child']?$detail['price_child']:''}" maxlength="20" placeholder="请输入儿童" class="layui-input">
+	                    </div>	
+					</div>				
+                </div>	
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>允许退款:</label>
+                    <div class="layui-input-block" style="line-height: 36px;">
+						{foreach name="is_refund" item="vo"}
+                        <input type="radio" lay-filter="is_refund" name="is_refund" value="{$key}" title="{$vo}" {if condition="isset($detail.is_refund)"}{if $key eq $detail['is_refund']}checked{/if}{/if}>
+						{/foreach}
+                    </div>
+                </div>	
+                <div class="layui-form-item" id="refund_div" {if condition="isset($detail)"}{if $detail['is_refund'] eq 0}style="display:none;"{else /}{/if}{/if}>
+                    <label class="layui-form-label"></label>
+					<div class="layui-input-block" style="line-height: 36px;">
+						<label class="layui-form-label">退款时间</label>
+	                    <div class="layui-input-inline" style="line-height: 36px;">
+							<select id="refund_time" name="refund_time">
+								<option value="">请选择</option>
+								{foreach name="refund_time" item="vo"}
+									<option value="{$key}" {if condition="isset($detail['refund_time'])"}{if $key eq $detail.refund_time}selected{/if}{/if}>{$vo}</option>
+								{/foreach}
+							</select>
+	                    </div>
+						<label class="layui-form-label">退款比例</label>
+	                    <div class="layui-input-inline" style="line-height: 36px;">
+	                        <input type="text" id="cut_percent" name="cut_percent" value="{$detail['cut_percent']?$detail['cut_percent']:''}" maxlength="4" placeholder="请填写退款比例" class="layui-input">
+						</div>
+						<div class="layui-form-mid layui-word-aux">%</div>						
+					</div>				
+                </div>																																
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="margin-right: 15px;"><span style="color:red">*</span>开放时间:</label>   
+                    <div class="layui-input-block">
+                         <input readonly id="price_date" type="text" name="price_date" value="{$detail.price_date ? $detail.price_date : ''}" placeholder="开放时间" class="layui-input">
+                    </div> 					                       
+                </div>				
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>所属分类:</label>
+                    <div class="layui-input-block">
+						{php}
+							foreach ($cate as $key=>$vo) {
+								if( isset($detail['cate']) ) {
+									if (in_array($key, $detail['cate'])) {
+										echo '<input type="checkbox" name="cate['.$key.']" title="'.$vo.'" lay-skin="primary" value="'.$key.'" checked>';
+									} else {
+										echo '<input type="checkbox" name="cate['.$key.']" title="'.$vo.'" lay-skin="primary" value="'.$key.'" >';
+									}
+								} else {
+									echo '<input type="checkbox" name="cate['.$key.']" title="'.$vo.'" lay-skin="primary" value="'.$key.'" >';
+								}
+							}
+						{/php}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>所属服务部:</label>
+                    <div class="layui-input-block">
+                        <span class="layui-btn select">请选择所属服务部</span>
+						<span style="color: red; font-size: larger;">一旦重复操作,前面的操作将清空</span>
+                        <table class="layui-table" id="list-admin" lay-even>
+                            <thead>
+                            <tr>
+                                <th>服务部名称</th>
+                                <th>负责人</th>
+								<th>所属区域</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="musics">   
+							{notempty name="detail.shop_info"}                        	
+                            {volist name='detail.shop_info' id='vo'}
+                            <tr>
+                                <td>{$vo.shop_name}</td>
+                                <td>{$vo.linkman}</td>
+								<td>{$vo.district_name}</td>
+                                <td><span class="layui-btn layui-btn-danger del" data-shop-id='{$vo.shop_id}' data-info="你确定删除该服务部吗？">删除</span></td>
+                            </tr>
+                            {/volist}			
+							{/notempty}				
+                            </tbody>
+                        </table>	                        
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label"><span style="color:red">*</span>规格设置:</label>
+                    <div class="layui-input-block">
+                        <table class="layui-table" id="product-goods" lay-even>
+                            <thead>
+                            <tr>
+                                <th>规格名称</th>
+                                <th>成人价</th>
+								<th>儿童价</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="musics">   
+							{notempty name="detail.shop_product_info"}                        	
+                            {volist name='detail.shop_product_info' id='vo'}
+                            <tr>
+                                <td><input type="text" maxlength="200" name="product_goods[{$vo.goods_id}][goods_name]" value="{$vo.goods_name}" class="layui-input" placeholder="请输入规格名称" /></td>
+                                <td><input type="text" maxlength="20" name="product_goods[{$vo.goods_id}][goods_price_adult]" value="{$vo.price_adult}" class="layui-input" placeholder="请输入成人价, 位/元" /></td>
+								<td><input type="text" maxlength="20" name="product_goods[{$vo.goods_id}][goods_price_child]" value="{$vo.price_child}" class="layui-input" placeholder="请输入儿童价格, 位/元" /></td>
+                                {if $key eq 0}
+									<td>
+										<span class="layui-btn layui-btn-normal api-add">新增</span>
+										<input type="hidden" name="product_goods[{$vo.goods_id}][goods_id]" value="{$vo.goods_id}" />
+									</td>
+								{else /}
+									<td>
+										<span class="layui-btn layui-btn-danger removeTr" goods-id="{$vo.goods_id}">删除</span>
+										<input type="hidden" name="product_goods[{$vo.goods_id}][goods_id]" value="{$vo.goods_id}" />
+									</td>								
+								{/if}
+                            </tr>
+                            {/volist}	
+							{else /}
+                            <tr>
+                                <td><input type="text" maxlength="200" name="product_goods[0][goods_name]" value="" class="layui-input" placeholder="请输入规格名称" /></td>
+                                <td><input type="text" maxlength="20" name="product_goods[0][goods_price_adult]" value="" class="layui-input" placeholder="请输入成人价, 位/元" /></td>
+								<td><input type="text" maxlength="20" name="product_goods[0][goods_price_child]" value="" class="layui-input" placeholder="请输入儿童价格,位/元" /></td>
+                                <td><span class="layui-btn layui-btn-normal api-add">新增</span></td>
+                            </tr>									
+							{/notempty}				
+                            </tbody>
+                        </table>	                        
+                    </div>
+                </div>				
+				<div class="layui-form-item layui-form-text">
+					<label class="layui-form-label">线路特色</label>
+					<div class="layui-input-block">
+						<textarea name="feature" placeholder="请输入线路特色" class="layui-textarea">{$detail['feature'] ? $detail['feature'] : ''}</textarea>
+					</div>
+				</div>
+				<div class="layui-form-item layui-form-text">
+					<label class="layui-form-label"><span style="color:red">*</span>产品详情</label>
+					<div class="layui-input-block">
+						<script id="container" name="content" type="text/plain">
+       						{$detail['content'] ? $detail['content'] : ''}
+    					</script>
+					</div>
+				</div>										
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                    	<input type="hidden" name="shop_ids" id="shop_ids" value="{$detail.shop_ids ? $detail.shop_ids : ''}" />
+		                {notempty name='detail'}
+		                    <input type="hidden" name="id" value="{$detail['product_id']}">		                                   	
+	                    	<input type="hidden" id="remove_shop_ids" name="remove_shop_ids" value="" />	                    	
+							<input type="hidden" name="remove_goods_id" id="remove_goods_id" value="" />
+							<input type="hidden" name="goods_ids" id="goods_ids" value="{$detail.goods_ids ? $detail.goods_ids : ''}" />
+						{/notempty} 
+                        <button class="layui-btn" lay-submit lay-filter="admin-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+</block>
+<block name="myScript">	
+	<script>
+        $(document).ready(function() {
+            $('#price_date').daterangepicker({
+                format:"YYYY-MM-DD",
+                singleDatePicker: false,
+                showDropdowns: true,
+                minDate:'2019-01-01',
+                maxDate:moment().add("{:config('daterangepicker_days')}",'days'),
+                startDate:'2019-01-01',
+                showWeekNumbers : false, //是否显示第几周
+                timePicker : false, //是否显示小时和分钟
+                timePickerSeconds: false, //时间显示到秒
+                timePickerIncrement : 1, //时间的增量，单位为分钟
+                timePicker12Hour : false, //是否使用12小时制来显示时间
+                locale : {
+                    applyLabel : '确定',
+                    cancelLabel : '取消',
+                    fromLabel : '起始时间',
+                    toLabel : '结束时间',
+                    customRangeLabel : '自定义',
+                    daysOfWeek : [ '日', '一', '二', '三', '四', '五', '六' ],
+                    monthNames : [ '一月', '二月', '三月', '四月', '五月', '六月','七月', '八月', '九月', '十月', '十一月', '十二月' ],
+                    firstDay : 1
+                }
+            });
+        });	
+		
+    	//线路封面
+        var host = window.location.host;
+        var imageObj = $("#image");
+        var image_path = '{$detail["cover"] ? $detail["cover"] : ""}';
+        if (image_path != ''){
+            imageObj.attr('src','http://'+host+'/'+image_path);  //
+        }
+		$("#cover").val(image_path);
+        layui.use('upload', function(){
+            var options = {
+                elem: '#uploadFile',
+                url: '{:url("upload/index")}',
+                ext: 'jpg|png|jpeg',
+				before: function(input){
+					console.log('文件上传中');
+				},				
+                success: function(res){
+                    console.log(res); //上传成功返回值，必须为json格式
+                    if (res.type == 1) {
+	                    imageObj.show();
+	                    imageObj.attr('src','http://'+host+'/'+res.image_path);
+	                    $("#cover").val(res.image_path);
+					} else {
+                        layer.msg(res.msg, {
+                            icon: 5,
+                            shade: [0.6, '#393D49'],
+                            time:1500
+                        });						
+					}
+                }
+            };
+            layui.upload(options);
+        });	
+		
+		
+        //线路banner		
+        layui.use('upload', function(){			
+			var options = {
+                elem: '#uploadFile2',
+                url: '{:url("upload/index")}',
+                ext: 'jpg|png|jpeg',
+				before: function(input){
+					console.log('文件上传中')
+				},			
+                success: function(res){
+                    console.log(res); //上传成功返回值，必须为json格式
+                    if (res.type == 1) {
+						if ($("#upload_list li").length <= 4) {
+							var myDate = new Date();
+							var index = myDate.getTime();
+							var html = '<img src="http://'+host+'/'+res.image_path+'" style = "width:200px;">';	
+							html += '<span class="my-icons">删除</span>';
+							html += '<input type="hidden" name="banner['+index+']" value="'+res.image_path+'" style="border: none; width: 0">';					
+							$("<li>" + html +"</li>").prependTo("#upload_list");		
+						} else {
+							layer.alert('服务部banner只能上传5张');
+						}
+					} else {
+                        layer.msg(res.msg, {
+                            icon: 5,
+                            shade: [0.6, '#393D49'],
+                            time:1500
+                        });							
+					}
+                }
+            };
+            layui.upload(options);
+        });	
+		
+		$(document).on('click', '.my-icons', function () {
+			var ownObj = $(this);
+			ownObj.parent().remove();
+		})	
+		
+        layui.use('form', function(){
+            var form = layui.form();
+			//允许退款
+			form.on('radio(is_refund)', function(data){
+				if (data.value == 1) {
+					$("#refund_div").show();					
+				} else {
+					$("#refund_time").val('');
+					$("#cut_percent").val('');
+					$("#refund_div").hide();
+				}
+				form.render();
+			})
+		
+			//增加规格
+			$(document).on('click', '.api-add', function(){
+				var html = '';
+				var myDate = new Date();
+				var index = myDate.getTime();				
+				html += '<tr>';
+				html += '<td><input type="text" maxlength="200" name="product_goods['+index+'][goods_name]" value="" class="layui-input" placeholder="请输入规格名称" /></td>';
+				html += '<td><input type="text" maxlength="20" name="product_goods['+index+'][goods_price_adult]" value="" class="layui-input" placeholder="请输入成人价, 位/元" /></td>';
+				html += '<td><input type="text" maxlength="20" name="product_goods['+index+'][goods_price_child]" value="" class="layui-input" placeholder="请输入儿童价格, 位/元" /></td>';
+				html += '<td><span class="layui-btn layui-btn-danger removeTr" goods-id="">删除</span></td>';
+				html += '</tr>';
+				$("#product-goods tbody").append(html);
+			})			
+			
+			//减少一行
+			$(document).on('click', '.removeTr', function(){
+				var remove_goods_id = $("input[name='remove_goods_id']").val();
+				remove_goods_id += $(this).attr('goods-id')+',';
+				$("#remove_goods_id").val(remove_goods_id);
+				$(this).parent().parent().remove();				
+			})
+			
+			//选择服务部
+            $(document).on('click', '.select', function () {
+                var id = $("input[name='id']").val();  
+                var ids_obj = $("input[name='ids[]']");
+                var ids = [];
+                for(var i=0; i<ids_obj.length; i++)
+                {
+                    if($(ids_obj[i]).val() != '')
+                    {
+                        ids.push($(ids_obj[i]).val());
+                    }
+                }
+                layer.open({
+                    type: 2,
+                    area: ['100%', '100%'],
+                    maxmin: true,
+                    content: 'getShop?ids='+ids,
+                    btn: ['提交', '取消'],
+                    yes: function (index, layero) {
+                        var body = layer.getChildFrame('body', index);
+                        //按钮【按钮一】的回调
+                        var music_obj = body.find("input[name='mid[]']:checked");
+
+                        if (music_obj.length == 0) {
+                            tips('请选择服务部');
+                            return;
+                        }
+
+                        var string = "";
+						var shop_ids = "";
+                        for(var i=0; i<music_obj.length; i++)
+                        {
+                            var music_id = music_obj.eq(i).val();
+                            var shop_id = music_obj.eq(i).attr('shop_id');
+							var shop_name = music_obj.eq(i).attr('title');
+							var linkman = music_obj.eq(i).attr('linkman');
+							var district_name = music_obj.eq(i).attr('district_name');
+							shop_ids += shop_id + ',';
+                            string += '<tr>';
+                            string += '<td>' + shop_name + '</td>';
+                            string += '<td>' + linkman + '</div>';
+							string += '<td>' + district_name +'</div>';
+                            string += '<td><span class="layui-btn layui-btn-danger del" data-shop-id='+shop_id+' data-info="你确定删除该服务部吗？">删除</span></td>';
+                            string += '</tr>';
+                        }
+						$("#musics").empty();
+                        $("#musics").append(string);
+						$("#shop_ids").val(shop_ids);
+                        layer.close(layer.index);
+                    }
+                });
+            });
+
+            $(document).on('click', '.del', function () {
+				var remove_shop_ids = $("#remove_shop_ids").val();
+				remove_shop_ids += $(this).attr('data-shop-id')+',';
+				$("#remove_shop_ids").val(remove_shop_ids);
+                $(this).parent().parent().remove();
+            });
+        });
+
+        function tips(msg) {
+            layer.msg(msg, {
+                icon: 5,
+                shade: [0.6, '#393D49'],
+                time:1500
+            });
+        }	
+						
+	</script>	
+    {if condition="isset($detail['product_id'])"}
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:url("edit")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+        {else}
+        <script>
+            layui.use('form', function(){
+                var form = layui.form();
+                form.on('submit(admin-form)', function(data){
+                    $.ajax({
+                        type: "POST",
+                        url: '{:url("add")}',
+                        data: data.field,
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                parent.location.reload();
+                            }else{
+                                parent.layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                    return false;
+                });
+
+            });
+        </script>
+    {/if}
+</block>
+<!-- 配置文件 -->
+<script type="text/javascript" src="/static/admin/ueditor/ueditor.config.js"></script>
+<!-- 编辑器源码文件 -->
+<script type="text/javascript" src="/static/admin/ueditor/ueditor.all.js"></script>
+<!-- 实例化编辑器 -->
+<script type="text/javascript">
+    var ue = UE.getEditor('container');
+</script>

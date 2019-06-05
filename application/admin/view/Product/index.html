@@ -1,0 +1,245 @@
+{include file="Public/base" /}
+<style>
+	.mysearch { font-weight: normal;}
+</style>
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>线路管理</legend>
+        <div class="layui-field-box">
+            <form class="layui-form" id="form-admin-add" action="outputExcel">          	
+                <div class="layui-inline">
+                    <label class="mysearch">线路名称：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="product_name" value="" placeholder="请填写线路名称" class="layui-input" onkeyup='clearSymbol(this)'>
+                    </div>
+                </div>				
+                <div class="layui-inline">
+                    <label class="mysearch">所属服务部：</label>
+                    <div class="layui-input-inline">
+                    	<select name="shop_id">
+                    		<option value="">请选择</option>
+							{foreach name="shop_info" item="vo"}
+								<option value="{$key}">{$vo}</option>
+							{/foreach}							
+                    	</select>
+                    </div>
+                </div>									
+                <div class="layui-inline">
+                    <span class="layui-btn sub">查询</span>
+					<span class="layui-btn resetform layui-btn-primary">重置</span>
+					<button type="submit" class="layui-btn layui-btn-normal" id="excel">Excel导出</button>
+                </div>
+            </div>
+            </form> 
+			<span class="layui-btn layui-btn-normal api-add"><i class="layui-icon">&#xe608;</i> 新增</span>
+			<span class="layui-btn layui-btn-normal on">上架</span>
+			<span class="layui-btn layui-btn-normal off">下架</span>				
+            <table class="layui-table" id="list-admin" lay-even>
+                <thead>
+                <tr>
+                    <th style="text-align:center;">
+						<input type="checkbox" onclick="$('input[name*=\'id\']').prop('checked', this.checked);">
+					</th>                	
+                    <th>序号</th>
+                    <th>banner</th>
+                    <th>线路名称</th>
+					<th>线路单价（元）</th>
+					<th>销量</th>
+					<th>上架状态</th>
+                    <th>线路开放时间</th>
+                    <th>所属分类</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </fieldset>
+</block>
+<block name="myScript">
+    <script>
+  
+      	$(".resetform").click(function(){
+	    	$('#form-admin-add')[0].reset();
+    	}) 
+    	
+		/**
+		 * 
+		 * @param {Object} obj
+		 * 
+		 */
+        function clearSymbol(obj) {
+            obj.value = obj.value.replace(/[%]/g,""); //清除"%"特殊字符
+        }
+		
+        layui.use(['layer', 'form'], function() {
+            $(document).on('click', '.confirm', function () {
+                var ownObj = $(this);
+                layer.confirm(ownObj.attr('data-info'), {
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                    $.ajax({
+                        type: "POST",
+                        url: ownObj.attr('data-url'),
+                        data: {id:ownObj.attr('data-id')},
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                location.reload();
+                            }else{
+                                layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+
+            $('.api-add').on('click', function () {
+                layer.open({
+                    type: 2,
+                    area: ['80%', '80%'],
+                    maxmin: true,
+                    content: '{:url("add")}'
+                });
+            });
+
+            $(document).on('click', '.edit', function () {
+                var ownObj = $(this);
+                layer.open({
+                    type: 2,
+                    area: ['80%', '80%'],
+                    maxmin: true,
+                    content: ownObj.attr('data-url')+'?id='+ownObj.attr('data-id')
+                });
+            });
+
+			$(".on").click(function(){
+				layer.confirm('你确定要上架吗?',function(){
+					var checkObj = $("input[name='id[]']:checked");
+					var ids=''
+					var num = checkObj.length; 
+					checkObj.each(function(){
+						ids += $(this).val()+',';
+					});	
+
+					if (num<=0) {
+						layer.alert('操作不能为空!',{icon:2});	
+						return false;
+					}	
+					$.post("{:url('batchOpen')}",{'ids':ids},function(data){
+						if (data.code == 1) {
+							location.reload();
+						} else {
+	                        layer.msg(data.msg, {
+	                            icon: 5,
+	                            shade: [0.6, '#393D49'],
+	                            time:1500
+	                        });							
+						}
+					},'json');							
+				})
+			})
+		
+			$(".off").click(function(){
+				layer.confirm('你确定要下架吗?',function(){
+					var checkObj = $("input[name='id[]']:checked");
+					var ids=''
+					var num = checkObj.length; 
+					checkObj.each(function(){
+						ids += $(this).val()+',';
+					});	
+					if (num<=0) {
+						layer.alert('操作不能为空!',{icon:2});	
+						return false;
+					}	
+					$.post("{:url('batchClose')}",{'ids':ids},function(data){
+						if (data.code == 1) {
+							location.reload();
+						} else {
+	                        layer.msg(data.msg, {
+	                            icon: 5,
+	                            shade: [0.6, '#393D49'],
+	                            time:1500
+	                        });							
+						}
+					},'json');					
+				});
+			})
+
+            var myFun = function (query) {
+                query = query || '';
+                return $('#list-admin').DataTable({
+                    dom: 'rt<"bottom"ifpl><"clear">',
+                    ordering: false,
+                    autoWidth: false,
+                    searching:false,
+                    serverSide: true,
+                    ajax: {
+                        url:'{:url("ajaxGetIndex")}' + query,
+                        type: 'GET',
+                        dataSrc: function ( json ) {
+                            if( json.code == 0 ){
+                                parent.layer.msg(json.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }else{
+                                return json.data;
+                            }
+                        }
+                    },
+                    columnDefs:[
+                        {
+							"targets":0,
+							"render":function(data, type, row) {
+								var returnStr = '';
+								returnStr = '<input type="checkbox" name="id[]" value="' + row.product_id+ '">';
+								return returnStr;
+							}
+						},{
+							"targets":2,
+							"render":function(data, type, row) {
+								var returnStr = '';
+								for (var i=0;i<row.picture_count; i++) {
+									returnStr += '<img src="'+row.picture[i]+'" style="height: 50px; margin-right:5px;" />';
+								}
+								return returnStr;
+							}
+						},{
+                            "targets":-1,
+                            "render":function(data, type, row){
+                                var returnStr = '';
+								returnStr += '<span class="layui-btn layui-btn-small edit layui-btn-normal" ' +
+                                    'data-id="' + row.product_id +'" data-url="{:url(\'edit\')}"><i class="layui-icon">&#xe642;</i></span>';
+                                return returnStr;
+                            }
+                        }
+                    ],
+                    iDisplayLength : 20,
+                    aLengthMenu : [20, 30, 50, 100],
+                    columns: [
+						{"data": null},
+                        {"data": "product_id"},
+                        {"data": null},
+                        {"data": "product_name"},
+                        {"data": "price_adult"},
+                        {"data": "total_buy"},
+						{"data": "marketable"},
+                        {"data": "product_date"},
+                        {"data": "cate"},
+                        {"data": null }
+                    ]
+                });
+            };
+            var myTable = myFun();
+            $('.sub').on("click", function(){
+                myTable.destroy();
+                myTable = myFun('?'+ $('#form-admin-add').serialize());
+            });
+        });
+
+    </script>
+</block>

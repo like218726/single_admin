@@ -1,0 +1,150 @@
+{include file="Public/base" /}
+<block name="main">
+    <fieldset class="layui-elem-field">
+        <legend>Banner管理</legend>
+        <div class="layui-field-box">
+        	<span class="layui-btn layui-btn-normal api-add" data-title="新增Banner"><i class="layui-icon">&#xe608;</i> 新增</span>
+			<span class="layui-btn layui-btn-normal on">上架</span>
+			<span class="layui-btn layui-btn-normal off">下架</span>			
+            <table class="layui-table" lay-even>
+                <thead>
+                <tr>
+                    <th style="text-align:center;">
+						<input type="checkbox" onclick="$('input[name*=\'id\']').prop('checked', this.checked);">
+					</th>
+					<th>序号</th>
+					<th>banner图片</th>
+					<th>banner名称</th>
+					<th>banner链接</th>
+					<th>上传时间</th>
+					<th>banner状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="list" id="vo"}
+                    <tr>
+                    	<td class="text-center"><input type="checkbox" name="id[]" value="{$vo['banner_id']}"> </td>
+                        <td>{$vo['banner_id']}</td>
+						<td><img src="{$vo['pic']}" alt="{$vo['title']}" title="{$vo['title']}" style="height:50px;"></td>
+						<td>{$vo['title']}</td>
+						<td>{$vo['url']}</td>
+						<td>{$vo['create_time']}</td>
+						<td>{$vo['status']}</td>
+						<td>
+							<span class="layui-btn layui-btn-small edit layui-btn-normal" data-title="编辑Banner" data-id="{$vo['banner_id']}" data-url="{:url('edit')}"><i class="layui-icon">&#xe642;</i></span>
+                            <span class="layui-btn layui-btn-small layui-btn-danger confirm" data-title="删除Banner" data-id="{$vo['banner_id']}" data-info="你确定删除吗？" data-url="{:url('del')}"><i class="layui-icon">&#xe640;</i></span>
+						</td>	
+                    </tr>
+                {/volist}
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+</block>
+<block name="myscript">
+	<script>
+		layui.use(['layer', 'form'], function() {
+			$(document).on('click', '.api-add', function () {	
+				var ownObj = $(this);
+                layer.open({
+                    type: 2,
+					title: ownObj.attr('data-title'),
+                    area: ['80%', '80%'],
+                    maxmin: true,
+                    content: '{:url("add")}'
+                });
+            });	
+			
+			$(".on").click(function(){
+				layer.confirm('你确定要上架吗?',{title:'Banner上架'},function(){
+					var checkObj = $("input[name='id[]']:checked");
+					var ids=''
+					var num = checkObj.length; 
+					checkObj.each(function(){
+						ids += $(this).val()+',';
+					});	
+					console.log(ids)
+					console.log(num);
+					if (num<=0) {
+						layer.alert('操作不能为空!',{icon:2});	
+						return false;
+					}	
+					$.post("{:url('batchOn')}",{'ids':ids},function(data){
+						if (data.code == 1) {
+							location.reload();
+						} else {
+	                        layer.msg(data.msg, {
+	                            icon: 5,
+	                            shade: [0.6, '#393D49'],
+	                            time:1500
+	                        });							
+						}
+					},'json');							
+				})
+			})
+		
+			$(".off").click(function(){
+				layer.confirm('你确定要下架吗?',{title:'Banner下架'},function(){
+					var checkObj = $("input[name='id[]']:checked");
+					var ids=''
+					var num = checkObj.length; 
+					checkObj.each(function(){
+						ids += $(this).val()+',';
+					});	
+					if (num<=0) {
+						layer.alert('操作不能为空!',{icon:2});	
+						return false;
+					}	
+					$.post("{:url('batchClose')}",{'ids':ids},function(data){
+						if (data.code == 1) {
+							location.reload();
+						} else {
+	                        layer.msg(data.msg, {
+	                            icon: 5,
+	                            shade: [0.6, '#393D49'],
+	                            time:1500
+	                        });							
+						}
+					},'json');					
+				});
+			})
+			
+            $(document).on('click', '.edit', function () {
+                var ownObj = $(this);
+                layer.open({
+                    type: 2,
+					title: ownObj.attr('data-title'),
+                    area: ['80%', '80%'],
+                    maxmin: true,
+                    content: ownObj.attr('data-url')+'?id='+ownObj.attr('data-id')
+                });
+            });	
+			
+            $(document).on('click', '.confirm', function () {
+                var ownObj = $(this);
+                layer.confirm(ownObj.attr('data-info'), {
+					title: ownObj.attr('data-title'),
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                    $.ajax({
+                        type: "POST",
+                        url: ownObj.attr('data-url'),
+                        data: {id:ownObj.attr('data-id')},
+                        success: function(msg){
+                            if( msg.code == 1 ){
+                                location.reload();
+                            }else{
+                                layer.msg(msg.msg, {
+                                    icon: 5,
+                                    shade: [0.6, '#393D49'],
+                                    time:1500
+                                });
+                            }
+                        }
+                    });
+                });
+            });										
+		})	
+	</script>
+</block>
